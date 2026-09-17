@@ -1,0 +1,6 @@
+@btl_CuaHangNhuongQuyen_HostAddress = http://localhost:5234
+
+GET {{btl_CuaHangNhuongQuyen_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
