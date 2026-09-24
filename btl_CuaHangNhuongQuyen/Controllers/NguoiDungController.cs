@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using BLL.Interfaces;
 using Model;
 
@@ -10,10 +11,12 @@ namespace btl_CuaHangNhuongQuyen.Controllers
     public class NguoiDungController : ControllerBase
     {
         private readonly INguoiDungBLL _nguoiDungBLL;
+        private readonly IConfiguration _config;
 
-        public NguoiDungController(INguoiDungBLL nguoiDungBLL)
+        public NguoiDungController(INguoiDungBLL nguoiDungBLL, IConfiguration config)
         {
             _nguoiDungBLL = nguoiDungBLL;
+            _config = config;
         }
 
         [HttpPost("login")]
@@ -30,9 +33,16 @@ namespace btl_CuaHangNhuongQuyen.Controllers
                 return Unauthorized(new { message = "Email hoặc mật khẩu không chính xác" });
             }
 
+            string secretKey = _config["Jwt:Key"];
+            string issuer = _config["Jwt:Issuer"];
+            string audience = _config["Jwt:Audience"];
+
+            var token = _nguoiDungBLL.GenerateJwtToken(user, secretKey, issuer, audience);
+
             return Ok(new
             {
                 message = "Đăng nhập thành công",
+                token = token,
                 user = new
                 {
                     user.id,

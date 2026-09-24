@@ -8,6 +8,7 @@ namespace BLL.Interfaces
         List<NguoiDungModel> GetAll();
         NguoiDungModel GetById(int id);
         NguoiDungModel Login(string email, string matkhau);
+        string GenerateJwtToken(NguoiDungModel user, string secretKey, string issuer, string audience);
         bool Register(string email, string matkhau, string hoten, int vaitroid);
         bool Create(NguoiDungModel model);
         bool Update(NguoiDungModel model);

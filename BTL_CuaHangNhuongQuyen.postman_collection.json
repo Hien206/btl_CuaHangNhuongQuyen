@@ -1,0 +1,247 @@
+{
+  "info": {
+    "name": "BTL_CuaHangNhuongQuyen_SOA",
+    "description": "Postman Collection Test APIs cho BTL Quản lý chuỗi cửa hàng nhượng quyền",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Authentication & NguoiDung",
+      "item": [
+        {
+          "name": "POST Register Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hien@gmail.com\",\n  \"matkhau\": \"123456\",\n  \"hoten\": \"Nguyễn Minh Hiển\",\n  \"vaitroid\": 1\n}"
+            },
+            "url": {
+              "raw": "https://localhost:44390/api/NguoiDung/register",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "44390",
+              "path": [
+                "api",
+                "NguoiDung",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST Login Account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hien@gmail.com\",\n  \"matkhau\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:44390/api/NguoiDung/login",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "44390",
+              "path": [
+                "api",
+                "NguoiDung",
+                "login"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Quan Ly CuaHang",
+      "item": [
+        {
+          "name": "GET Get All CuaHang",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:44390/api/CuaHang/get-all",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "44390",
+              "path": [
+                "api",
+                "CuaHang",
+                "get-all"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST Create CuaHang",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"macuahang\": \"CH_CAU_GIAY\",\n  \"tencuahang\": \"Trà Sữa Franchise Cầu Giấy\",\n  \"chu_cua_hang_id\": 1,\n  \"diachi\": \"123 Đường Cầu Giấy, Hà Nội\",\n  \"trangthai\": \"hoatdong\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:44390/api/CuaHang/create",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "44390",
+              "path": [
+                "api",
+                "CuaHang",
+                "create"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Quan Ly HopDong",
+      "item": [
+        {
+          "name": "GET Get All HopDong",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:44390/api/HopDong/get-all",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "44390",
+              "path": [
+                "api",
+                "HopDong",
+                "get-all"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST Create HopDong",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cuahangid\": 2,\n  \"sohopdong\": \"HD-2026-001\",\n  \"phantramphi\": 5.0,\n  \"ngaybatdau\": \"2026-01-01T00:00:00Z\",\n  \"ngayketthuc\": \"2028-01-01T00:00:00Z\",\n  \"trangthai\": \"hieuluc\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:44390/api/HopDong/create",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "44390",
+              "path": [
+                "api",
+                "HopDong",
+                "create"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Quan Ly DoanhThu & HoaDon",
+      "item": [
+        {
+          "name": "GET Get All DoanhThu",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:44390/api/DoanhThu/get-all",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "44390",
+              "path": [
+                "api",
+                "DoanhThu",
+                "get-all"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET Get All HoaDon",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://localhost:44390/api/HoaDon/get-all",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "44390",
+              "path": [
+                "api",
+                "HoaDon",
+                "get-all"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

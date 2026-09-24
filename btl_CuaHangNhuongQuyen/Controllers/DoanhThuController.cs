@@ -50,5 +50,12 @@ namespace btl_CuaHangNhuongQuyen.Controllers
             var res = _doanhThuBLL.Delete(id);
             return Ok(new { success = res });
         }
+
+        [HttpGet("export-excel")]
+        public IActionResult ExportExcel()
+        {
+            var fileBytes = _doanhThuBLL.ExportDoanhThuToExcel();
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"BaoCaoDoanhThu_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
+        }
     }
 }

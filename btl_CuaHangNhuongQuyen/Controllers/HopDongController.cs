@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using BLL.Interfaces;
 using Model;
 
 namespace btl_CuaHangNhuongQuyen.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class HopDongController : ControllerBase

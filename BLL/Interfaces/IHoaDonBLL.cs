@@ -10,5 +10,6 @@ namespace BLL.Interfaces
         bool Create(HoaDonModel model);
         bool Update(HoaDonModel model);
         bool Delete(int id);
+        byte[] ExportHoaDonToPdf(int hoadonId);
     }
 }

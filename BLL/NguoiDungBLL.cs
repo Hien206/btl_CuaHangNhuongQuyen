@@ -1,4 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 using BLL.Interfaces;
 using DAL.Interfaces;
 using Model;
@@ -8,10 +13,12 @@ namespace BLL
     public class NguoiDungBLL : INguoiDungBLL
     {
         private readonly INguoiDungRepository _res;
+        private readonly IVaiTroRepository _vaiTroRes;
 
-        public NguoiDungBLL(INguoiDungRepository res)
+        public NguoiDungBLL(INguoiDungRepository res, IVaiTroRepository vaiTroRes)
         {
             _res = res;
+            _vaiTroRes = vaiTroRes;
         }
 
         public List<NguoiDungModel> GetAll()
@@ -35,6 +42,33 @@ namespace BLL
             }
 
             return null;
+        }
+
+        public string GenerateJwtToken(NguoiDungModel user, string secretKey, string issuer, string audience)
+        {
+            var role = _vaiTroRes.GetById(user.vaitroid);
+            string roleName = role != null ? role.mavaitro : "ADMIN";
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(secretKey);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.id.ToString()),
+                    new Claim(ClaimTypes.Email, user.email ?? ""),
+                    new Claim(ClaimTypes.Name, user.hoten ?? ""),
+                    new Claim(ClaimTypes.Role, roleName)
+                }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
 
         public bool Register(string email, string matkhau, string hoten, int vaitroid)

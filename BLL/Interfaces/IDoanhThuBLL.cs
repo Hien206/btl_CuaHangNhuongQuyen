@@ -10,5 +10,6 @@ namespace BLL.Interfaces
         bool Create(DoanhThuModel model);
         bool Update(DoanhThuModel model);
         bool Delete(int id);
+        byte[] ExportDoanhThuToExcel();
     }
 }

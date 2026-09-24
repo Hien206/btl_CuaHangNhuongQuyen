@@ -50,5 +50,13 @@ namespace btl_CuaHangNhuongQuyen.Controllers
             var res = _hoaDonBLL.Delete(id);
             return Ok(new { success = res });
         }
+
+        [HttpGet("export-pdf/{id}")]
+        public IActionResult ExportPdf(int id)
+        {
+            var pdfBytes = _hoaDonBLL.ExportHoaDonToPdf(id);
+            if (pdfBytes == null) return NotFound(new { message = "Không tìm thấy hóa đơn" });
+            return File(pdfBytes, "application/pdf", $"HoaDon_NhuongQuyen_{id}.pdf");
+        }
     }
 }
