@@ -7,6 +7,7 @@ using DAL.Helper;
 using DAL.Interfaces;
 using BLL;
 using BLL.Interfaces;
+using btl_CuaHangNhuongQuyen.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,9 @@ builder.Services.AddTransient<IHoaDonBLL, HoaDonBLL>();
 builder.Services.AddTransient<IThanhToanBLL, ThanhToanBLL>();
 builder.Services.AddTransient<IThongBaoBLL, ThongBaoBLL>();
 builder.Services.AddTransient<ILichSuThaoTacBLL, LichSuThaoTacBLL>();
+
+// Register Background Service for Contract Expiration & Missing Revenue Reports Scanning
+builder.Services.AddHostedService<HopDongExpirationBackgroundService>();
 
 // JWT Authentication Configuration
 var secretKey = builder.Configuration["Jwt:Key"];
