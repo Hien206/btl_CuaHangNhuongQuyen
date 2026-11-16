@@ -1,247 +1,554 @@
 {
-  "info": {
-    "name": "BTL_CuaHangNhuongQuyen_SOA",
-    "description": "Postman Collection Test APIs cho BTL Quản lý chuỗi cửa hàng nhượng quyền",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "1. Authentication & NguoiDung",
-      "item": [
-        {
-          "name": "POST Register Account",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"hien@gmail.com\",\n  \"matkhau\": \"123456\",\n  \"hoten\": \"Nguyễn Minh Hiển\",\n  \"vaitroid\": 1\n}"
-            },
-            "url": {
-              "raw": "https://localhost:44390/api/NguoiDung/register",
-              "protocol": "https",
-              "host": [
-                "localhost"
-              ],
-              "port": "44390",
-              "path": [
-                "api",
-                "NguoiDung",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "POST Login Account",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"hien@gmail.com\",\n  \"matkhau\": \"123456\"\n}"
-            },
-            "url": {
-              "raw": "https://localhost:44390/api/NguoiDung/login",
-              "protocol": "https",
-              "host": [
-                "localhost"
-              ],
-              "port": "44390",
-              "path": [
-                "api",
-                "NguoiDung",
-                "login"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "2. Quan Ly CuaHang",
-      "item": [
-        {
-          "name": "GET Get All CuaHang",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "https://localhost:44390/api/CuaHang/get-all",
-              "protocol": "https",
-              "host": [
-                "localhost"
-              ],
-              "port": "44390",
-              "path": [
-                "api",
-                "CuaHang",
-                "get-all"
-              ]
-            }
-          }
-        },
-        {
-          "name": "POST Create CuaHang",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"macuahang\": \"CH_CAU_GIAY\",\n  \"tencuahang\": \"Trà Sữa Franchise Cầu Giấy\",\n  \"chu_cua_hang_id\": 1,\n  \"diachi\": \"123 Đường Cầu Giấy, Hà Nội\",\n  \"trangthai\": \"hoatdong\"\n}"
-            },
-            "url": {
-              "raw": "https://localhost:44390/api/CuaHang/create",
-              "protocol": "https",
-              "host": [
-                "localhost"
-              ],
-              "port": "44390",
-              "path": [
-                "api",
-                "CuaHang",
-                "create"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "3. Quan Ly HopDong",
-      "item": [
-        {
-          "name": "GET Get All HopDong",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "https://localhost:44390/api/HopDong/get-all",
-              "protocol": "https",
-              "host": [
-                "localhost"
-              ],
-              "port": "44390",
-              "path": [
-                "api",
-                "HopDong",
-                "get-all"
-              ]
-            }
-          }
-        },
-        {
-          "name": "POST Create HopDong",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"cuahangid\": 2,\n  \"sohopdong\": \"HD-2026-001\",\n  \"phantramphi\": 5.0,\n  \"ngaybatdau\": \"2026-01-01T00:00:00Z\",\n  \"ngayketthuc\": \"2028-01-01T00:00:00Z\",\n  \"trangthai\": \"hieuluc\"\n}"
-            },
-            "url": {
-              "raw": "https://localhost:44390/api/HopDong/create",
-              "protocol": "https",
-              "host": [
-                "localhost"
-              ],
-              "port": "44390",
-              "path": [
-                "api",
-                "HopDong",
-                "create"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "4. Quan Ly DoanhThu & HoaDon",
-      "item": [
-        {
-          "name": "GET Get All DoanhThu",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "https://localhost:44390/api/DoanhThu/get-all",
-              "protocol": "https",
-              "host": [
-                "localhost"
-              ],
-              "port": "44390",
-              "path": [
-                "api",
-                "DoanhThu",
-                "get-all"
-              ]
-            }
-          }
-        },
-        {
-          "name": "GET Get All HoaDon",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "https://localhost:44390/api/HoaDon/get-all",
-              "protocol": "https",
-              "host": [
-                "localhost"
-              ],
-              "port": "44390",
-              "path": [
-                "api",
-                "HoaDon",
-                "get-all"
-              ]
-            }
-          }
-        }
-      ]
-    }
-  ]
+	"info": {
+		"_postman_id": "a9b8c7d6-e5f4-4321-8765-123456789abc",
+		"name": "BTL_CuaHangNhuongQuyen_Postman_Workflow",
+		"description": "Bộ quy trình kiểm thử End-to-End (E2E) tự động cho Bài tập lớn Quản lý Chuỗi Cửa Hàng Nhượng Quyền (Franchise).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "admin_url",
+			"value": "http://localhost:5160",
+			"type": "string"
+		},
+		{
+			"key": "user_url",
+			"value": "http://localhost:5022",
+			"type": "string"
+		},
+		{
+			"key": "bearer_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cuahang_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "hopdong_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "hoadon_id",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{bearer_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "BƯỚC 1: Xác Thực & Đăng Nhập (Auth)",
+			"item": [
+				{
+					"name": "1.1 Đăng nhập Admin (Tự động lưu Bearer Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set('bearer_token', jsonData.token);",
+									"    console.log('Token da duoc tu dong luu:', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@franchise.local\",\n  \"matkhau\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{admin_url}}/api/NguoiDung/login",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"NguoiDung",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "1.2 Đăng ký tài khoản Chủ cửa hàng mới",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"chu_cuahang_2@franchise.local\",\n  \"matkhau\": \"123456\",\n  \"hoten\": \"Trần Văn Chủ Cửa Hàng\",\n  \"vaitroid\": 2\n}"
+						},
+						"url": {
+							"raw": "{{admin_url}}/api/NguoiDung/register",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"NguoiDung",
+								"register"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "BƯỚC 2: Quản Lý Cửa Hàng (Stores)",
+			"item": [
+				{
+					"name": "2.1 Đăng ký/Tạo mới cửa hàng nhượng quyền",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"macuahang\": \"CH_CAU_GIAY_01\",\n  \"tencuahang\": \"Trà Sữa Franchise Cầu Giấy\",\n  \"chu_cua_hang_id\": 2,\n  \"diachi\": \"123 Đường Cầu Giấy, Hà Nội\",\n  \"trangthai\": \"hoatdong\"\n}"
+						},
+						"url": {
+							"raw": "{{admin_url}}/api/CuaHang/create",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"CuaHang",
+								"create"
+							]
+						}
+					}
+				},
+				{
+					"name": "2.2 Lấy danh sách cửa hàng",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{admin_url}}/api/CuaHang/get-all",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"CuaHang",
+								"get-all"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "BƯỚC 3: Hợp Đồng Nhượng Quyền (Contracts)",
+			"item": [
+				{
+					"name": "3.1 Tạo Hợp đồng nhượng quyền mới",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cuahangid\": 1,\n  \"sohopdong\": \"HD-2026-001\",\n  \"phantramphi\": 5.0,\n  \"ngaybatdau\": \"2026-01-01\",\n  \"ngayketthuc\": \"2028-12-31\",\n  \"trangthai\": \"hieuluc\",\n  \"phienban\": 1\n}"
+						},
+						"url": {
+							"raw": "{{admin_url}}/api/HopDong/create",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"HopDong",
+								"create"
+							]
+						}
+					}
+				},
+				{
+					"name": "3.2 Xem danh sách hợp đồng",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{admin_url}}/api/HopDong/get-all",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"HopDong",
+								"get-all"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "BƯỚC 4: Ghi Nhận Doanh Thu & Xuất Báo Cáo",
+			"item": [
+				{
+					"name": "4.1 Khai báo Doanh thu hàng ngày",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cuahangid\": 1,\n  \"ngaybaocao\": \"2026-10-06\",\n  \"tongdoanhthu\": 15500000.0,\n  \"ghichu\": \"Doanh thu ngày làm việc bình thường\",\n  \"trangthai\": \"dunghan\"\n}"
+						},
+						"url": {
+							"raw": "{{admin_url}}/api/DoanhThu/create",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"DoanhThu",
+								"create"
+							]
+						}
+					}
+				},
+				{
+					"name": "4.2 Xuất Báo Cáo Doanh Thu (Excel)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{admin_url}}/api/DoanhThu/export-excel",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"DoanhThu",
+								"export-excel"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "BƯỚC 5: Hóa Đơn Phí Franchise & Thanh Toán",
+			"item": [
+				{
+					"name": "5.1 Tạo Hóa đơn thu phí Franchise kỳ tháng 10/2026",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cuahangid\": 1,\n  \"hopdongid\": 1,\n  \"kythanhtoan\": \"2026-10\",\n  \"tienphinhuongquyen\": 775000.0,\n  \"tienthue\": 77500.0,\n  \"tongtien\": 852500.0,\n  \"trangthai\": \"chuathanhtoan\"\n}"
+						},
+						"url": {
+							"raw": "{{admin_url}}/api/HoaDon/create",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"HoaDon",
+								"create"
+							]
+						}
+					}
+				},
+				{
+					"name": "5.2 Xuất Hóa Đơn Định Dạng PDF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{admin_url}}/api/HoaDon/export-pdf/1",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"HoaDon",
+								"export-pdf",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "5.3 Ghi nhận Thanh toán hóa đơn",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"hoadonid\": 1,\n  \"sotien\": 852500.0,\n  \"phuongthuc\": \"chuyenkhoan\",\n  \"magiaodich\": \"FT20261006998877\"\n}"
+						},
+						"url": {
+							"raw": "{{admin_url}}/api/ThanhToan/create",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"ThanhToan",
+								"create"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "BƯỚC 6: Giám Sát, Thông Báo & Audit Log",
+			"item": [
+				{
+					"name": "6.1 Kiểm tra Cảnh báo & Thông báo hệ thống (In-App)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{admin_url}}/api/ThongBao/get-all",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"ThongBao",
+								"get-all"
+							]
+						}
+					}
+				},
+				{
+					"name": "6.2 Lấy danh sách Nhật ký thao tác (Audit Logs)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 OK', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{admin_url}}/api/LichSuThaoTac/get-all",
+							"host": [
+								"{{admin_url}}"
+							],
+							"path": [
+								"api",
+								"LichSuThaoTac",
+								"get-all"
+							]
+						}
+					}
+				}
+			]
+		}
+	]
 }

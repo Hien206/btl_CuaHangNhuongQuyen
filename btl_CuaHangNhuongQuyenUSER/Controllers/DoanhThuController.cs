@@ -1,0 +1,59 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using BLL.Interfaces;
+using Model;
+
+namespace btl_CuaHangNhuongQuyenUSER.Controllers
+{
+    [Authorize(Roles = "CHU_CUA_HANG,ADMIN")]
+    [Route("api/[controller]")]
+    [ApiController]
+    public class DoanhThuController : ControllerBase
+    {
+        private readonly IDoanhThuBLL _doanhThuBLL;
+
+        public DoanhThuController(IDoanhThuBLL doanhThuBLL)
+        {
+            _doanhThuBLL = doanhThuBLL;
+        }
+
+        // Xem lịch sử doanh thu của cửa hàng
+        [HttpGet("get-all")]
+        public IActionResult GetAll()
+        {
+            return Ok(_doanhThuBLL.GetAll());
+        }
+
+        [HttpGet("get-by-id/{id}")]
+        public IActionResult GetById(int id)
+        {
+            var res = _doanhThuBLL.GetById(id);
+            if (res == null) return NotFound(new { message = "Không tìm thấy doanh thu" });
+            return Ok(res);
+        }
+
+        // Nghiệp vụ cốt lõi: Chủ cửa hàng báo cáo doanh thu theo ngày
+        [HttpPost("create")]
+        public IActionResult Create([FromBody] DoanhThuModel model)
+        {
+            var res = _doanhThuBLL.Create(model);
+            return Ok(new { success = res });
+        }
+
+        [HttpPut("update")]
+        public IActionResult Update([FromBody] DoanhThuModel model)
+        {
+            var res = _doanhThuBLL.Update(model);
+            return Ok(new { success = res });
+        }
+
+        [HttpGet("export-excel")]
+        public IActionResult ExportExcel()
+        {
+            var fileBytes = _doanhThuBLL.ExportDoanhThuToExcel();
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"BaoCaoDoanhThu_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
+        }
+    }
+}

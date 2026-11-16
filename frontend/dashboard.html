@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng Điều Khiển - Franchise Master</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- SweetAlert2 -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm py-2">
+    <div class="container-fluid px-3">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+        <i class="bi bi-shop-window text-primary fs-4"></i>
+        <span>Franchise<span class="text-primary">Master</span></span>
+      </a>
+
+      <div class="d-flex align-items-center gap-3">
+        <!-- API URL indicator -->
+        <span class="badge bg-secondary d-none d-md-inline" id="topApiBadge">API: https://localhost:7134</span>
+
+        <!-- Notification Bell -->
+        <button class="btn btn-outline-light btn-sm position-relative rounded-pill px-3" onclick="switchTab('thongbao')">
+          <i class="bi bi-bell-fill"></i>
+          <span class="d-none d-sm-inline ms-1">Thông Báo</span>
+          <span id="unreadBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+            0
+          </span>
+        </button>
+
+        <!-- User Profile Dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-dark dropdown-toggle d-flex align-items-center gap-2 border" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle fs-5 text-info"></i>
+            <span id="navUserName" class="fw-semibold small">Người dùng</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li><span class="dropdown-item-text small text-muted" id="navUserEmail">email@domain.com</span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item text-danger" onclick="API.logout()"><i class="bi bi-box-arrow-right me-2"></i>Đăng Xuất</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <nav class="col-md-3 col-lg-2 d-md-block sidebar py-3 px-2">
+        <ul class="nav flex-column gap-1">
+          <li class="nav-item">
+            <a class="nav-link active" id="tab-btn-overview" href="#" onclick="switchTab('overview')">
+              <i class="bi bi-speedometer2"></i> Tổng Quan
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="tab-btn-cuahang" href="#" onclick="switchTab('cuahang')">
+              <i class="bi bi-shop"></i> Cửa Hàng
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="tab-btn-hopdong" href="#" onclick="switchTab('hopdong')">
+              <i class="bi bi-file-earmark-text"></i> Hợp Đồng
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="tab-btn-doanhthu" href="#" onclick="switchTab('doanhthu')">
+              <i class="bi bi-graph-up-arrow"></i> Doanh Thu Ngày
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="tab-btn-hoadon" href="#" onclick="switchTab('hoadon')">
+              <i class="bi bi-receipt"></i> Hóa Đơn & Phí
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="tab-btn-khuyenmai" href="#" onclick="switchTab('khuyenmai')">
+              <i class="bi bi-tags"></i> Khuyến Mãi
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="tab-btn-thongbao" href="#" onclick="switchTab('thongbao')">
+              <i class="bi bi-exclamation-triangle"></i> Cảnh Báo Ngầm
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Main Content Area -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+
+        <!-- ================= TAB 1: OVERVIEW ================= -->
+        <div id="tab-overview" class="tab-pane-content">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h3 class="fw-bold mb-0">Hệ Thống Quản Lý Franchise</h3>
+              <p class="text-muted small mb-0">Tổng hợp hoạt động chuỗi nhượng quyền theo thời gian thực</p>
+            </div>
+            <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="loadAllData()">
+              <i class="bi bi-arrow-clockwise me-1"></i> Làm mới dữ liệu
+            </button>
+          </div>
+
+          <!-- 4 Stat Cards -->
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+              <div class="stat-card p-3 d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="text-muted small fw-semibold">Tổng Cửa Hàng</span>
+                  <h3 class="fw-bold mt-1 mb-0" id="statCuaHang">0</h3>
+                </div>
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                  <i class="bi bi-shop"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+              <div class="stat-card p-3 d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="text-muted small fw-semibold">Hợp Đồng Hiệu Lực</span>
+                  <h3 class="fw-bold mt-1 mb-0 text-success" id="statHopDong">0</h3>
+                </div>
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                  <i class="bi bi-patch-check"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+              <div class="stat-card p-3 d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="text-muted small fw-semibold">Tổng Doanh Thu Ghi Nhận</span>
+                  <h4 class="fw-bold mt-1 mb-0 text-warning" id="statDoanhThu">0 đ</h4>
+                </div>
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                  <i class="bi bi-cash-stack"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+              <div class="stat-card p-3 d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="text-muted small fw-semibold">Cảnh Báo Hệ Thống</span>
+                  <h3 class="fw-bold mt-1 mb-0 text-danger" id="statThongBao">0</h3>
+                </div>
+                <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                  <i class="bi bi-bell"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Highlights -->
+          <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+              <h5 class="fw-bold mb-3"><i class="bi bi-lightning-charge text-warning me-2"></i>Thao Tác Nhanh Nghiệp Vụ Franchise</h5>
+              <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-primary" onclick="openModalCreateCuaHang()"><i class="bi bi-plus-circle me-1"></i>Đăng Ký Cửa Hàng</button>
+                <button class="btn btn-outline-success" onclick="openModalCreateHopDong()"><i class="bi bi-file-earmark-plus me-1"></i>Lập Hợp Đồng Mới</button>
+                <button class="btn btn-outline-warning" onclick="openModalCreateDoanhThu()"><i class="bi bi-journal-plus me-1"></i>Báo Cáo Doanh Thu</button>
+                <button class="btn btn-outline-danger" onclick="exportExcelDoanhThu()"><i class="bi bi-file-earmark-excel me-1"></i>Xuất Excel Báo Cáo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB 2: CỬA HÀNG ================= -->
+        <div id="tab-cuahang" class="tab-pane-content d-none">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="fw-bold mb-0">Quản Lý Chuỗi Cửa Hàng</h4>
+              <p class="text-muted small mb-0">Danh sách các cơ sở nhượng quyền trong hệ thống</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModalCreateCuaHang()">
+              <i class="bi bi-plus-lg me-1"></i> Thêm Cửa Hàng
+            </button>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th class="ps-3">ID</th>
+                      <th>Mã Cửa Hàng</th>
+                      <th>Tên Cửa Hàng</th>
+                      <th>Địa Chỉ</th>
+                      <th>Chủ Sở Hữu</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-3">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableCuaHangBody">
+                    <tr><td colspan="7" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB 3: HỢP ĐỒNG ================= -->
+        <div id="tab-hopdong" class="tab-pane-content d-none">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="fw-bold mb-0">Hợp Đồng Nhượng Quyền</h4>
+              <p class="text-muted small mb-0">Quản lý tỷ lệ % phí nhượng quyền, thời hạn và versioning hợp đồng</p>
+            </div>
+            <button class="btn btn-success" onclick="openModalCreateHopDong()">
+              <i class="bi bi-file-earmark-plus me-1"></i> Tạo Hợp Đồng Mới
+            </button>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th class="ps-3">ID</th>
+                      <th>Số Hợp Đồng</th>
+                      <th>Cửa Hàng</th>
+                      <th>% Phí Nhượng Quyền</th>
+                      <th>Ngày Bắt Đầu</th>
+                      <th>Ngày Kết Thúc</th>
+                      <th>Phiên Bản</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-3">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableHopDongBody">
+                    <tr><td colspan="9" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB 4: DOANH THU ================= -->
+        <div id="tab-doanhthu" class="tab-pane-content d-none">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="fw-bold mb-0">Doanh Thu Theo Ngày</h4>
+              <p class="text-muted small mb-0">Ghi nhận doanh số hàng ngày để tính toán phí nhượng quyền</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-success" onclick="exportExcelDoanhThu()">
+                <i class="bi bi-file-earmark-excel me-1"></i> Xuất Báo Cáo Excel
+              </button>
+              <button class="btn btn-primary" onclick="openModalCreateDoanhThu()">
+                <i class="bi bi-plus-lg me-1"></i> Khai Báo Doanh Thu
+              </button>
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th class="ps-3">ID</th>
+                      <th>Cửa Hàng</th>
+                      <th>Ngày Báo Cáo</th>
+                      <th>Tổng Doanh Thu (VNĐ)</th>
+                      <th>Trạng Thái Nộp</th>
+                      <th>Ghi Chú</th>
+                      <th class="text-end pe-3">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableDoanhThuBody">
+                    <tr><td colspan="7" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB 5: HÓA ĐƠN ================= -->
+        <div id="tab-hoadon" class="tab-pane-content d-none">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="fw-bold mb-0">Hóa Đơn Thu Phí Franchise</h4>
+              <p class="text-muted small mb-0">Tự động tính phí nhượng quyền, thuế VAT & xuất file PDF QuestPDF</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModalCreateHoaDon()">
+              <i class="bi bi-receipt-cutoff me-1"></i> Tạo Hóa Đơn Kỳ Mới
+            </button>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th class="ps-3">ID</th>
+                      <th>Kỳ Thu</th>
+                      <th>Cửa Hàng</th>
+                      <th>Tiền Phí (%)</th>
+                      <th>Thuế VAT</th>
+                      <th>Tổng Phải Thu</th>
+                      <th>Trạng Thái</th>
+                      <th class="text-end pe-3">Xuất File & Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableHoaDonBody">
+                    <tr><td colspan="8" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB 6: KHUYẾN MÃI ================= -->
+        <div id="tab-khuyenmai" class="tab-pane-content d-none">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="fw-bold mb-0">Quản Lý Khuyến Mãi</h4>
+              <p class="text-muted small mb-0">Chương trình ưu đãi áp dụng toàn hệ thống hoặc từng cửa hàng</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModalCreateKhuyenMai()">
+              <i class="bi bi-tag me-1"></i> Tạo Khuyến Mãi Mới
+            </button>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th class="ps-3">ID</th>
+                      <th>Tên Chương Trình</th>
+                      <th>Phạm Vi Áp Dụng</th>
+                      <th>Mức Giảm (%)</th>
+                      <th>Ngày Bắt Đầu</th>
+                      <th>Ngày Kết Thúc</th>
+                      <th class="text-end pe-3">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableKhuyenMaiBody">
+                    <tr><td colspan="7" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= TAB 7: THÔNG BÁO / CẢNH BÁO NGẦM ================= -->
+        <div id="tab-thongbao" class="tab-pane-content d-none">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="fw-bold mb-0">Cảnh Báo Từ Tiến Trình Chạy Ngầm</h4>
+              <p class="text-muted small mb-0">Thông báo tự động quét từ Background Service (chậm báo cáo, hợp đồng sắp hết hạn)</p>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" onclick="loadThongBao()">
+              <i class="bi bi-arrow-clockwise me-1"></i> Làm mới cảnh báo
+            </button>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th class="ps-3">ID</th>
+                      <th>Thời Gian</th>
+                      <th>Loại Cảnh Báo</th>
+                      <th>Nội Dung Chi Tiết</th>
+                      <th>Trạng Thái</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableThongBaoBody">
+                    <tr><td colspan="5" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- Modal Thêm Cửa Hàng -->
+  <div class="modal fade" id="modalCuaHang" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form onsubmit="handleSaveCuaHang(event)">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Đăng Ký Cửa Hàng Nhượng Quyền</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Mã Cửa Hàng (Unique)</label>
+              <input type="text" id="ch_macuahang" class="form-control" placeholder="VD: CH_HOAN_KIEM" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Tên Cửa Hàng</label>
+              <input type="text" id="ch_tencuahang" class="form-control" placeholder="VD: Trà Sữa Franchise Hoàn Kiếm" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Địa Chỉ</label>
+              <input type="text" id="ch_diachi" class="form-control" placeholder="VD: 15 Phố Tràng Tiền, Hà Nội">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Trạng Thái</label>
+              <select id="ch_trangthai" class="form-select">
+                <option value="hoatdong">Hoạt động (hoatdong)</option>
+                <option value="choduyet">Chờ duyệt (choduyet)</option>
+                <option value="tamngung">Tạm ngưng (tamngung)</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary">Lưu Cửa Hàng</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tạo Hợp Đồng -->
+  <div class="modal fade" id="modalHopDong" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form onsubmit="handleSaveHopDong(event)">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Lập Hợp Đồng Nhượng Quyền</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Cửa Hàng Nhượng Quyền</label>
+              <select id="hd_cuahangid" class="form-select" required></select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Số Hợp Đồng (Unique)</label>
+              <input type="text" id="hd_sohopdong" class="form-control" placeholder="VD: HD-2026-009" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Tỷ lệ phí nhượng quyền (%)</label>
+              <input type="number" step="0.1" min="0" max="100" id="hd_phantramphi" class="form-control" value="5.0" required>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col">
+                <label class="form-label small fw-semibold">Ngày Bắt Đầu</label>
+                <input type="date" id="hd_ngaybatdau" class="form-control" required>
+              </div>
+              <div class="col">
+                <label class="form-label small fw-semibold">Ngày Kết Thúc</label>
+                <input type="date" id="hd_ngayketthuc" class="form-control" required>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-success">Lập Hợp Đồng</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Khai Báo Doanh Thu -->
+  <div class="modal fade" id="modalDoanhThu" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form onsubmit="handleSaveDoanhThu(event)">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Khai Báo Doanh Thu Ngày</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Cửa Hàng</label>
+              <select id="dt_cuahangid" class="form-select" required></select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Ngày Báo Cáo</label>
+              <input type="date" id="dt_ngaybaocao" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Tổng Doanh Thu Trong Ngày (VNĐ)</label>
+              <input type="number" min="0" step="1000" id="dt_tongdoanhthu" class="form-control" placeholder="VD: 15500000" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Ghi Chú</label>
+              <input type="text" id="dt_ghichu" class="form-control" placeholder="VD: Doanh thu ngày cuối tuần">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary">Nộp Báo Cáo</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tạo Hóa Đơn -->
+  <div class="modal fade" id="modalHoaDon" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form onsubmit="handleSaveHoaDon(event)">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Tạo Hóa Đơn Thu Phí Franchise</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Hợp Đồng Nhượng Quyền</label>
+              <select id="hdon_hopdongid" class="form-select" onchange="onHoaDonContractChange()" required></select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Kỳ Thanh Toán (Tháng)</label>
+              <input type="text" id="hdon_kythanhtoan" class="form-control" placeholder="VD: 2026-10" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Tiền Phí Nhượng Quyền (VNĐ)</label>
+              <input type="number" min="0" step="1000" id="hdon_tienphi" class="form-control" placeholder="VD: 1500000" oninput="calcHoaDonTotal()" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Tiền Thuế VAT 10% (VNĐ)</label>
+              <input type="number" min="0" step="1000" id="hdon_tienthue" class="form-control" placeholder="VD: 150000" oninput="calcHoaDonTotal()">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-danger">Tổng Tiền Phải Thu (VNĐ)</label>
+              <input type="number" id="hdon_tongtien" class="form-control fw-bold text-danger fs-5" readonly>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary">Phát Hành Hóa Đơn</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tạo Khuyến Mãi -->
+  <div class="modal fade" id="modalKhuyenMai" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form onsubmit="handleSaveKhuyenMai(event)">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Tạo Chương Trình Khuyến Mãi</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Phạm Vi Áp Dụng</label>
+              <select id="km_cuahangid" class="form-select">
+                <option value="">-- Toàn Hệ Thống --</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Tên Chương Trình</label>
+              <input type="text" id="km_tenkhuyenmai" class="form-control" placeholder="VD: Khai xuân giảm 20%" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">% Giảm Giá</label>
+              <input type="number" step="0.5" min="0" max="100" id="km_phantramgiam" class="form-control" value="15.0" required>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col">
+                <label class="form-label small fw-semibold">Ngày Bắt Đầu</label>
+                <input type="date" id="km_ngaybatdau" class="form-control" required>
+              </div>
+              <div class="col">
+                <label class="form-label small fw-semibold">Ngày Kết Thúc</label>
+                <input type="date" id="km_ngayketthuc" class="form-control" required>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary">Tạo Khuyến Mãi</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

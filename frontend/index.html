@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Nhập - Quản Lý Chuỗi Cửa Hàng Nhượng Quyền</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- SweetAlert2 -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-bg">
+
+  <div class="login-card p-4 p-md-5">
+    <div class="text-center mb-4">
+      <div class="stat-icon bg-primary text-white mx-auto mb-3 shadow">
+        <i class="bi bi-shop-window"></i>
+      </div>
+      <h3 class="fw-bold mb-1">Franchise Master</h3>
+      <p class="text-muted small">Hệ thống Quản lý Chuỗi Cửa Hàng Nhượng Quyền</p>
+    </div>
+
+    <!-- API Port Selector Badge -->
+    <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded-3 small">
+      <span class="text-muted"><i class="bi bi-hdd-network me-1"></i>API URL:</span>
+      <span id="currentApiUrlBadge" class="badge bg-secondary text-truncate" style="max-width: 200px;">https://localhost:7134</span>
+      <button class="btn btn-sm btn-link p-0 text-decoration-none" onclick="openApiConfigModal()">
+        <i class="bi bi-gear-fill"></i> Đổi
+      </button>
+    </div>
+
+    <!-- Form Đăng nhập -->
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Email tài khoản</label>
+        <div class="input-group">
+          <span class="input-group-text bg-white"><i class="bi bi-envelope text-muted"></i></span>
+          <input type="email" id="email" class="form-control" placeholder="name@franchise.local" required value="admin@franchise.local">
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label small fw-semibold">Mật khẩu</label>
+        <div class="input-group">
+          <span class="input-group-text bg-white"><i class="bi bi-lock text-muted"></i></span>
+          <input type="password" id="matkhau" class="form-control" placeholder="Nhập mật khẩu" required value="123456">
+          <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+            <i class="bi bi-eye" id="toggleIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" id="btnLogin" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm mb-3">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Đăng Nhập
+      </button>
+    </form>
+
+    <!-- Nút chọn nhanh tài khoản mẫu -->
+    <div class="mt-3 pt-3 border-top">
+      <p class="small text-muted mb-2 text-center">Tài khoản mẫu thử nghiệm:</p>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-primary flex-fill" onclick="fillAccount('admin@franchise.local', '123456')">
+          <i class="bi bi-shield-lock"></i> Admin
+        </button>
+        <button class="btn btn-sm btn-outline-success flex-fill" onclick="fillAccount('owner@franchise.local', '123456')">
+          <i class="bi bi-person-badge"></i> Chủ Cửa Hàng
+        </button>
+        <button class="btn btn-sm btn-outline-info flex-fill" onclick="fillAccount('accountant@franchise.local', '123456')">
+          <i class="bi bi-calculator"></i> Kế Toán
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Đổi API URL -->
+  <div class="modal fade" id="apiConfigModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fs-6 fw-bold"><i class="bi bi-sliders me-2"></i>Cấu hình Cổng Backend API</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label small fw-semibold">Địa chỉ Backend API:</label>
+          <input type="text" id="apiInput" class="form-control mb-3" placeholder="http://localhost:5160">
+          <p class="small text-muted mb-2">Gợi ý các cổng thường dùng:</p>
+          <div class="d-grid gap-2">
+            <button class="btn btn-sm btn-light text-start border" onclick="selectQuickPort('http://localhost:5160')">
+              <strong>http://localhost:5160</strong> (Mặc định khi chạy lệnh dotnet run)
+            </button>
+            <button class="btn btn-sm btn-light text-start border" onclick="selectQuickPort('https://localhost:44390')">
+              <strong>https://localhost:44390</strong> (Khi chạy IIS Express Visual Studio)
+            </button>
+            <button class="btn btn-sm btn-light text-start border" onclick="selectQuickPort('https://localhost:7134')">
+              <strong>https://localhost:7134</strong> (Khi chạy HTTPS dotnet run)
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="saveApiUrl()">Lưu cấu hình</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    // Khởi tạo hiển thị API URL hiện tại
+    document.addEventListener("DOMContentLoaded", () => {
+      // Tự động đồng bộ cổng https 7134 nếu cổng cũ là 5160
+      if (localStorage.getItem("API_BASE_URL") === "http://localhost:5160") {
+        CONFIG.setApiUrl("https://localhost:7134");
+      }
+      document.getElementById("currentApiUrlBadge").innerText = CONFIG.getApiUrl();
+      // Nếu đã có token và còn hợp lệ thì tự vào dashboard
+      if (API.getToken() && API.getCurrentUser()) {
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    function togglePassword() {
+      const input = document.getElementById("matkhau");
+      const icon = document.getElementById("toggleIcon");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.className = "bi bi-eye-slash";
+      } else {
+        input.type = "password";
+        icon.className = "bi bi-eye";
+      }
+    }
+
+    function fillAccount(email, pass) {
+      document.getElementById("email").value = email;
+      document.getElementById("matkhau").value = pass;
+    }
+
+    function openApiConfigModal() {
+      document.getElementById("apiInput").value = CONFIG.getApiUrl();
+      new bootstrap.Modal(document.getElementById("apiConfigModal")).show();
+    }
+
+    function selectQuickPort(url) {
+      document.getElementById("apiInput").value = url;
+    }
+
+    function saveApiUrl() {
+      const newUrl = document.getElementById("apiInput").value.trim();
+      if (newUrl) {
+        CONFIG.setApiUrl(newUrl);
+        document.getElementById("currentApiUrlBadge").innerText = newUrl;
+        bootstrap.Modal.getInstance(document.getElementById("apiConfigModal")).hide();
+        Swal.fire({
+          icon: 'success',
+          title: 'Đã lưu cấu hình API',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const matkhau = document.getElementById("matkhau").value.trim();
+      const btn = document.getElementById("btnLogin");
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Đang đăng nhập...`;
+
+      try {
+        const res = await API.request('/api/NguoiDung/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, matkhau })
+        });
+
+        if (res && res.token) {
+          API.setToken(res.token);
+          API.setCurrentUser(res.user);
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Đăng nhập thành công!',
+            text: `Chào mừng ${res.user.hoten || email}!`,
+            timer: 1200,
+            showConfirmButton: false
+          }).then(() => {
+            window.location.href = "dashboard.html";
+          });
+        }
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Đăng nhập thất bại',
+          text: err.message || 'Không thể kết nối đến máy chủ API. Vui lòng kiểm tra API đã chạy chưa!'
+        });
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-box-arrow-in-right me-1"></i> Đăng Nhập`;
+      }
+    }
+  </script>
+</body>
+</html>
