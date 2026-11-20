@@ -49,5 +49,35 @@ namespace DAL
             };
             return _dbHelper.ExecuteNonQuery(sql, parameters) > 0;
         }
+
+        public bool Delete(int id)
+        {
+            string sql = "DELETE FROM thongbao WHERE id = @id";
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@id", id)
+            };
+            return _dbHelper.ExecuteNonQuery(sql, parameters) > 0;
+        }
+
+        public bool DeleteAll()
+        {
+            string sql = "DELETE FROM thongbao";
+            return _dbHelper.ExecuteNonQuery(sql) >= 0;
+        }
+
+        public int CleanupDuplicates()
+        {
+            // Dọn dẹp các thông báo trùng lặp (giữ lại 1 bản ghi mới nhất cho mỗi nội dung trong ngày)
+            string sql = @"WITH CTE AS (
+                               SELECT id, ROW_NUMBER() OVER (
+                                   PARTITION BY loaithongbao, noidung, CAST(ngaytao AS DATE)
+                                   ORDER BY id DESC
+                               ) AS rn
+                               FROM thongbao
+                           )
+                           DELETE FROM CTE WHERE rn > 1;";
+            return _dbHelper.ExecuteNonQuery(sql);
+        }
     }
 }

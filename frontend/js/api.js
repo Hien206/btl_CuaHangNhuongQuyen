@@ -1,4 +1,4 @@
-// API Service Helper with JWT Token & File Download Support
+// API Service Helper with JWT Token & Dynamic Gateway Routing Support
 const API = {
   getToken() {
     return localStorage.getItem("jwt_token") || "";
@@ -20,6 +20,62 @@ const API = {
     localStorage.setItem("current_user", JSON.stringify(user));
   },
 
+  getUserRole() {
+    const user = this.getCurrentUser();
+    if (!user) return "";
+    if (user.vaitro) return user.vaitro;
+    if (user.role) return user.role;
+    if (user.vaitroid === 1) return "ADMIN";
+    if (user.vaitroid === 2) return "CHU_CUA_HANG";
+    if (user.vaitroid === 3) return "KE_TOAN";
+
+    // Giải mã vai trò từ JWT Claim nếu user object chưa có
+    try {
+      const token = this.getToken();
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const r = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload.role;
+        if (r) return r;
+      }
+    } catch {}
+
+    return "ADMIN";
+  },
+
+  // Tự động phân luồng URL thông minh qua API Gateway
+  resolveUrl(endpoint) {
+    const baseUrl = CONFIG.getApiUrl();
+    const cleanEp = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+
+    // Kiểm tra xem địa chỉ có phải là Gateway (port 7221 hoặc 5045)
+    const isGateway = baseUrl.includes("7221") || baseUrl.includes("5045");
+    if (!isGateway) {
+      return `${baseUrl}${cleanEp}`;
+    }
+
+    // Nếu endpoint đã có tiền tố admin/user thì giữ nguyên
+    if (cleanEp.startsWith('/api/user/') || cleanEp.startsWith('/api/admin/')) {
+      return `${baseUrl}${cleanEp}`;
+    }
+
+    // Các hàm công khai (Đăng nhập, đăng ký)
+    if (cleanEp.includes('/NguoiDung/login') || cleanEp.includes('/NguoiDung/register')) {
+      return `${baseUrl}${cleanEp}`;
+    }
+
+    // Phân luồng Gateway theo vai trò thực tế
+    const role = this.getUserRole();
+    if (role === "CHU_CUA_HANG") {
+      // Ví dụ: /api/CuaHang/get-all ==> /api/user/CuaHang/get-all (Đẩy sang USER API: 7005)
+      const userEp = cleanEp.replace('/api/', '/api/user/');
+      return `${baseUrl}${userEp}`;
+    } else {
+      // ADMIN hoặc KE_TOAN: /api/CuaHang/get-all ==> /api/admin/CuaHang/get-all (Đẩy sang ADMIN API: 7134)
+      const adminEp = cleanEp.replace('/api/', '/api/admin/');
+      return `${baseUrl}${adminEp}`;
+    }
+  },
+
   logout() {
     localStorage.removeItem("jwt_token");
     localStorage.removeItem("current_user");
@@ -27,8 +83,7 @@ const API = {
   },
 
   async request(endpoint, options = {}) {
-    const baseUrl = CONFIG.getApiUrl();
-    const url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+    const url = this.resolveUrl(endpoint);
 
     const headers = {
       "Content-Type": "application/json",
@@ -46,6 +101,7 @@ const API = {
         headers
       });
 
+      // 1. Xử lý hết hạn phiên (401 Unauthorized)
       if (response.status === 401) {
         Swal.fire({
           icon: 'warning',
@@ -58,7 +114,18 @@ const API = {
         throw new Error("Unauthorized (401)");
       }
 
-      // Xử lý các loại response
+      // 2. Xử lý vi phạm phân quyền (403 Forbidden)
+      if (response.status === 403) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Không có quyền truy cập',
+          text: 'Tài khoản của bạn không có quyền thực hiện thao tác này (HTTP 403 Forbidden).',
+          confirmButtonText: 'Đã hiểu'
+        });
+        throw new Error("Forbidden (403): Không có quyền truy cập");
+      }
+
+      // 3. Xử lý dữ liệu trả về
       const contentType = response.headers.get("content-type") || "";
       if (contentType.includes("application/json")) {
         const data = await response.json();
@@ -74,15 +141,14 @@ const API = {
         return text;
       }
     } catch (err) {
-      console.error(`[API Error] ${endpoint}:`, err);
+      console.error(`[API Error] ${endpoint} -> ${url}:`, err);
       throw err;
     }
   },
 
   // Tải file nhị phân (Excel .xlsx, PDF .pdf)
   async downloadFile(endpoint, defaultFilename = "download") {
-    const baseUrl = CONFIG.getApiUrl();
-    const url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+    const url = this.resolveUrl(endpoint);
     const token = this.getToken();
 
     const headers = {};
@@ -93,6 +159,13 @@ const API = {
     try {
       const response = await fetch(url, { method: "GET", headers });
       if (!response.ok) {
+        if (response.status === 403) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Từ chối quyền tải file',
+            text: 'Tài khoản của bạn không được phép tải tệp tin này.'
+          });
+        }
         throw new Error(`Không thể tải file: ${response.statusText}`);
       }
 
@@ -116,7 +189,7 @@ const API = {
       a.remove();
       window.URL.revokeObjectURL(downloadUrl);
     } catch (err) {
-      console.error(`[Download Error] ${endpoint}:`, err);
+      console.error(`[Download Error] ${endpoint} -> ${url}:`, err);
       throw err;
     }
   }

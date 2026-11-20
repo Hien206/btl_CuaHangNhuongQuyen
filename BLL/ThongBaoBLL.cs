@@ -28,5 +28,20 @@ namespace BLL
         {
             return _res.Create(model);
         }
+
+        public bool Delete(int id)
+        {
+            return _res.Delete(id);
+        }
+
+        public bool DeleteAll()
+        {
+            return _res.DeleteAll();
+        }
+
+        public int CleanupDuplicates()
+        {
+            return _res.CleanupDuplicates();
+        }
     }
 }

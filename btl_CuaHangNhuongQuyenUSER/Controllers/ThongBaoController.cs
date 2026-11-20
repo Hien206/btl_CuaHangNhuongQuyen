@@ -32,5 +32,26 @@ namespace btl_CuaHangNhuongQuyenUSER.Controllers
             if (res == null) return NotFound(new { message = "Không tìm thấy thông báo" });
             return Ok(res);
         }
+
+        [HttpDelete("delete/{id}")]
+        public IActionResult Delete(int id)
+        {
+            var res = _thongBaoBLL.Delete(id);
+            return Ok(new { success = res });
+        }
+
+        [HttpDelete("cleanup-duplicates")]
+        public IActionResult CleanupDuplicates()
+        {
+            int count = _thongBaoBLL.CleanupDuplicates();
+            return Ok(new { success = true, deletedCount = count, message = $"Đã dọn dẹp {count} thông báo trùng lặp." });
+        }
+
+        [HttpDelete("delete-all")]
+        public IActionResult DeleteAll()
+        {
+            var res = _thongBaoBLL.DeleteAll();
+            return Ok(new { success = res });
+        }
     }
 }

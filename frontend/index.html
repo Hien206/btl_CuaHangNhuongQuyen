@@ -89,14 +89,14 @@
           <input type="text" id="apiInput" class="form-control mb-3" placeholder="http://localhost:5160">
           <p class="small text-muted mb-2">Gợi ý các cổng thường dùng:</p>
           <div class="d-grid gap-2">
-            <button class="btn btn-sm btn-light text-start border" onclick="selectQuickPort('http://localhost:5160')">
-              <strong>http://localhost:5160</strong> (Mặc định khi chạy lệnh dotnet run)
-            </button>
-            <button class="btn btn-sm btn-light text-start border" onclick="selectQuickPort('https://localhost:44390')">
-              <strong>https://localhost:44390</strong> (Khi chạy IIS Express Visual Studio)
+            <button class="btn btn-sm btn-outline-primary text-start fw-bold" onclick="selectQuickPort('https://localhost:7221')">
+              <i class="bi bi-diagram-3-fill me-1"></i> https://localhost:7221 (API Gateway - Khuyên dùng)
             </button>
             <button class="btn btn-sm btn-light text-start border" onclick="selectQuickPort('https://localhost:7134')">
-              <strong>https://localhost:7134</strong> (Khi chạy HTTPS dotnet run)
+              <strong>https://localhost:7134</strong> (Trực tiếp Admin API HTTPS)
+            </button>
+            <button class="btn btn-sm btn-light text-start border" onclick="selectQuickPort('https://localhost:7005')">
+              <strong>https://localhost:7005</strong> (Trực tiếp User API HTTPS)
             </button>
           </div>
         </div>
@@ -116,9 +116,10 @@
   <script>
     // Khởi tạo hiển thị API URL hiện tại
     document.addEventListener("DOMContentLoaded", () => {
-      // Tự động đồng bộ cổng https 7134 nếu cổng cũ là 5160
-      if (localStorage.getItem("API_BASE_URL") === "http://localhost:5160") {
-        CONFIG.setApiUrl("https://localhost:7134");
+      // Tự động đồng bộ cổng sang Gateway 7221 nếu cổng cũ là 5160 hoặc 7134
+      const currentUrl = localStorage.getItem("API_BASE_URL");
+      if (!currentUrl || currentUrl === "http://localhost:5160" || currentUrl === "https://localhost:7134") {
+        CONFIG.setApiUrl("https://localhost:7221");
       }
       document.getElementById("currentApiUrlBadge").innerText = CONFIG.getApiUrl();
       // Nếu đã có token và còn hợp lệ thì tự vào dashboard

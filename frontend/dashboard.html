@@ -41,6 +41,7 @@
           <button class="btn btn-dark dropdown-toggle d-flex align-items-center gap-2 border" type="button" data-bs-toggle="dropdown">
             <i class="bi bi-person-circle fs-5 text-info"></i>
             <span id="navUserName" class="fw-semibold small">Người dùng</span>
+            <span id="navUserBadge" class="badge bg-primary small">Quản Trị</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end shadow">
             <li><span class="dropdown-item-text small text-muted" id="navUserEmail">email@domain.com</span></li>
@@ -166,8 +167,8 @@
             <div class="card-body p-4">
               <h5 class="fw-bold mb-3"><i class="bi bi-lightning-charge text-warning me-2"></i>Thao Tác Nhanh Nghiệp Vụ Franchise</h5>
               <div class="d-flex flex-wrap gap-2">
-                <button class="btn btn-primary" onclick="openModalCreateCuaHang()"><i class="bi bi-plus-circle me-1"></i>Đăng Ký Cửa Hàng</button>
-                <button class="btn btn-outline-success" onclick="openModalCreateHopDong()"><i class="bi bi-file-earmark-plus me-1"></i>Lập Hợp Đồng Mới</button>
+                <button class="btn btn-primary role-admin" onclick="openModalCreateCuaHang()"><i class="bi bi-plus-circle me-1"></i>Đăng Ký Cửa Hàng</button>
+                <button class="btn btn-outline-success role-admin" onclick="openModalCreateHopDong()"><i class="bi bi-file-earmark-plus me-1"></i>Lập Hợp Đồng Mới</button>
                 <button class="btn btn-outline-warning" onclick="openModalCreateDoanhThu()"><i class="bi bi-journal-plus me-1"></i>Báo Cáo Doanh Thu</button>
                 <button class="btn btn-outline-danger" onclick="exportExcelDoanhThu()"><i class="bi bi-file-earmark-excel me-1"></i>Xuất Excel Báo Cáo</button>
               </div>
@@ -182,7 +183,7 @@
               <h4 class="fw-bold mb-0">Quản Lý Chuỗi Cửa Hàng</h4>
               <p class="text-muted small mb-0">Danh sách các cơ sở nhượng quyền trong hệ thống</p>
             </div>
-            <button class="btn btn-primary" onclick="openModalCreateCuaHang()">
+            <button class="btn btn-primary role-admin" onclick="openModalCreateCuaHang()">
               <i class="bi bi-plus-lg me-1"></i> Thêm Cửa Hàng
             </button>
           </div>
@@ -218,7 +219,7 @@
               <h4 class="fw-bold mb-0">Hợp Đồng Nhượng Quyền</h4>
               <p class="text-muted small mb-0">Quản lý tỷ lệ % phí nhượng quyền, thời hạn và versioning hợp đồng</p>
             </div>
-            <button class="btn btn-success" onclick="openModalCreateHopDong()">
+            <button class="btn btn-success role-admin" onclick="openModalCreateHopDong()">
               <i class="bi bi-file-earmark-plus me-1"></i> Tạo Hợp Đồng Mới
             </button>
           </div>
@@ -297,7 +298,7 @@
               <h4 class="fw-bold mb-0">Hóa Đơn Thu Phí Franchise</h4>
               <p class="text-muted small mb-0">Tự động tính phí nhượng quyền, thuế VAT & xuất file PDF QuestPDF</p>
             </div>
-            <button class="btn btn-primary" onclick="openModalCreateHoaDon()">
+            <button class="btn btn-primary role-admin" onclick="openModalCreateHoaDon()">
               <i class="bi bi-receipt-cutoff me-1"></i> Tạo Hóa Đơn Kỳ Mới
             </button>
           </div>
@@ -334,7 +335,7 @@
               <h4 class="fw-bold mb-0">Quản Lý Khuyến Mãi</h4>
               <p class="text-muted small mb-0">Chương trình ưu đãi áp dụng toàn hệ thống hoặc từng cửa hàng</p>
             </div>
-            <button class="btn btn-primary" onclick="openModalCreateKhuyenMai()">
+            <button class="btn btn-primary role-admin" onclick="openModalCreateKhuyenMai()">
               <i class="bi bi-tag me-1"></i> Tạo Khuyến Mãi Mới
             </button>
           </div>
@@ -368,11 +369,19 @@
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
               <h4 class="fw-bold mb-0">Cảnh Báo Từ Tiến Trình Chạy Ngầm</h4>
-              <p class="text-muted small mb-0">Thông báo tự động quét từ Background Service (chậm báo cáo, hợp đồng sắp hết hạn)</p>
+              <p class="text-muted small mb-0" id="thongBaoSummaryText">Thông báo tự động quét từ Background Service (chậm báo cáo, hợp đồng sắp hết hạn)</p>
             </div>
-            <button class="btn btn-outline-secondary btn-sm" onclick="loadThongBao()">
-              <i class="bi bi-arrow-clockwise me-1"></i> Làm mới cảnh báo
-            </button>
+            <div class="d-flex gap-2">
+              <button class="btn btn-warning btn-sm" onclick="cleanupDuplicatesThongBao()" title="Chỉ giữ lại 1 thông báo mới nhất cho mỗi sự kiện trong ngày">
+                <i class="bi bi-stars me-1"></i> Dọn Dẹp Trùng Lặp
+              </button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteAllThongBao()" title="Xóa toàn bộ các thông báo đã lưu">
+                <i class="bi bi-trash3 me-1"></i> Xóa Tất Cả
+              </button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="loadThongBao()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Làm Mới
+              </button>
+            </div>
           </div>
 
           <div class="card border-0 shadow-sm rounded-3">
@@ -386,10 +395,11 @@
                       <th>Loại Cảnh Báo</th>
                       <th>Nội Dung Chi Tiết</th>
                       <th>Trạng Thái</th>
+                      <th class="text-end pe-3">Thao Tác</th>
                     </tr>
                   </thead>
                   <tbody id="tableThongBaoBody">
-                    <tr><td colspan="5" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
+                    <tr><td colspan="6" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
                   </tbody>
                 </table>
               </div>

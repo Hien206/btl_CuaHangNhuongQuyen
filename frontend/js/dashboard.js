@@ -16,14 +16,45 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // 2. Cập nhật thông tin Header
+  // 2. Cập nhật thông tin Header & Huy hiệu vai trò
   document.getElementById("navUserName").innerText = user.hoten || user.email;
   document.getElementById("navUserEmail").innerText = user.email;
   document.getElementById("topApiBadge").innerText = "API: " + CONFIG.getApiUrl();
 
-  // 3. Tải toàn bộ dữ liệu
+  // 3. Phân quyền hiển thị giao diện theo vai trò (Role-Based UI)
+  applyRolePermissions();
+
+  // 4. Tải toàn bộ dữ liệu
   loadAllData();
 });
+
+// Hàm thiết lập phân quyền giao diện hiển thị
+function applyRolePermissions() {
+  const role = API.getUserRole();
+  const badge = document.getElementById("navUserBadge");
+  if (badge) {
+    if (role === "ADMIN") {
+      badge.className = "badge bg-primary ms-1";
+      badge.innerText = "Quản Trị Viên";
+    } else if (role === "CHU_CUA_HANG") {
+      badge.className = "badge bg-success ms-1";
+      badge.innerText = "Chủ Cửa Hàng";
+    } else if (role === "KE_TOAN") {
+      badge.className = "badge bg-warning text-dark ms-1";
+      badge.innerText = "Kế Toán";
+    } else {
+      badge.className = "badge bg-secondary ms-1";
+      badge.innerText = role;
+    }
+  }
+
+  // Nếu là Chủ Cửa Hàng: Ẩn các nút quản trị cao cấp của Admin
+  if (role === "CHU_CUA_HANG") {
+    document.querySelectorAll(".role-admin").forEach(el => el.classList.add("d-none"));
+  } else {
+    document.querySelectorAll(".role-admin").forEach(el => el.classList.remove("d-none"));
+  }
+}
 
 // Chuyển đổi qua lại giữa các Tab
 function switchTab(tabName) {
@@ -114,10 +145,18 @@ function renderTableCuaHang() {
     return;
   }
 
+  const isAdmin = API.getUserRole() === "ADMIN";
+
   tbody.innerHTML = g_listCuaHang.map(ch => {
     const statusBadge = ch.trangthai === 'hoatdong' 
       ? `<span class="badge bg-success badge-status">Hoạt động</span>`
       : `<span class="badge bg-secondary badge-status">${ch.trangthai}</span>`;
+
+    const actionBtn = isAdmin
+      ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteCuaHang(${ch.id})" title="Xóa chi nhánh">
+           <i class="bi bi-trash"></i>
+         </button>`
+      : `<span class="badge bg-light text-muted border"><i class="bi bi-shop me-1"></i>Chi nhánh của bạn</span>`;
 
     return `
       <tr>
@@ -128,9 +167,7 @@ function renderTableCuaHang() {
         <td><span class="badge bg-info bg-opacity-10 text-info">Chủ ID: ${ch.chu_cua_hang_id}</span></td>
         <td>${statusBadge}</td>
         <td class="text-end pe-3">
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteCuaHang(${ch.id})">
-            <i class="bi bi-trash"></i>
-          </button>
+          ${actionBtn}
         </td>
       </tr>
     `;
@@ -220,9 +257,17 @@ function renderTableHopDong() {
     return;
   }
 
+  const isAdmin = API.getUserRole() === "ADMIN";
+
   tbody.innerHTML = g_listHopDong.map(hd => {
     const ch = g_listCuaHang.find(c => c.id === hd.cuahangid);
     const tenCH = ch ? ch.tencuahang : `Cửa hàng #${hd.cuahangid}`;
+
+    const actionBtn = isAdmin
+      ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteHopDong(${hd.id})" title="Xóa hợp đồng">
+           <i class="bi bi-trash"></i>
+         </button>`
+      : `<span class="badge bg-light text-success border"><i class="bi bi-check2-circle me-1"></i>Hiệu lực</span>`;
 
     return `
       <tr>
@@ -235,9 +280,7 @@ function renderTableHopDong() {
         <td><span class="badge bg-secondary">v${hd.phienban || 1}</span></td>
         <td><span class="badge bg-success badge-status">${hd.trangthai || 'Hiệu lực'}</span></td>
         <td class="text-end pe-3">
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteHopDong(${hd.id})">
-            <i class="bi bi-trash"></i>
-          </button>
+          ${actionBtn}
         </td>
       </tr>
     `;
@@ -326,12 +369,20 @@ function renderTableDoanhThu() {
     return;
   }
 
+  const isAdmin = API.getUserRole() === "ADMIN";
+
   tbody.innerHTML = g_listDoanhThu.map(dt => {
     const ch = g_listCuaHang.find(c => c.id === dt.cuahangid);
     const tenCH = ch ? ch.tencuahang : `Cửa hàng #${dt.cuahangid}`;
     const statusBadge = dt.trangthai === 'dunghan' 
       ? `<span class="badge bg-success badge-status">Đúng hạn</span>`
       : `<span class="badge bg-danger badge-status">Trễ hạn</span>`;
+
+    const actionBtn = isAdmin
+      ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteDoanhThu(${dt.id})" title="Xóa bản ghi">
+           <i class="bi bi-trash"></i>
+         </button>`
+      : `<span class="badge bg-light text-success border"><i class="bi bi-check me-1"></i>Đã ghi nhận</span>`;
 
     return `
       <tr>
@@ -342,9 +393,7 @@ function renderTableDoanhThu() {
         <td>${statusBadge}</td>
         <td class="text-muted small">${dt.ghichu || ''}</td>
         <td class="text-end pe-3">
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteDoanhThu(${dt.id})">
-            <i class="bi bi-trash"></i>
-          </button>
+          ${actionBtn}
         </td>
       </tr>
     `;
@@ -435,12 +484,37 @@ function renderTableHoaDon() {
     return;
   }
 
+  const isAdmin = API.getUserRole() === "ADMIN";
+
   tbody.innerHTML = g_listHoaDon.map(hd => {
     const ch = g_listCuaHang.find(c => c.id === hd.cuahangid);
     const tenCH = ch ? ch.tencuahang : `Cửa hàng #${hd.cuahangid}`;
     const statusBadge = hd.trangthai === 'dathanhtoan' 
       ? `<span class="badge bg-success badge-status">Đã thanh toán</span>`
       : `<span class="badge bg-danger badge-status">Chưa thanh toán</span>`;
+
+    let actionBtns = `
+      <button class="btn btn-sm btn-outline-danger me-1" onclick="exportPdfHoaDon(${hd.id})" title="Tải file PDF QuestPDF">
+        <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i>Xuất PDF
+      </button>
+    `;
+
+    // Nếu chưa thanh toán, chủ quán có thể thanh toán trực tuyến
+    if (hd.trangthai !== 'dathanhtoan') {
+      actionBtns += `
+        <button class="btn btn-sm btn-success me-1" onclick="payHoaDon(${hd.id}, ${hd.tongtien})" title="Xác nhận nộp phí nhượng quyền">
+          <i class="bi bi-credit-card me-1"></i>Thanh Toán
+        </button>
+      `;
+    }
+
+    if (isAdmin) {
+      actionBtns += `
+        <button class="btn btn-sm btn-outline-secondary" onclick="deleteHoaDon(${hd.id})" title="Xóa hóa đơn">
+          <i class="bi bi-trash"></i>
+        </button>
+      `;
+    }
 
     return `
       <tr>
@@ -452,12 +526,7 @@ function renderTableHoaDon() {
         <td class="fw-bold text-danger">${formatMoney(hd.tongtien)}</td>
         <td>${statusBadge}</td>
         <td class="text-end pe-3">
-          <button class="btn btn-sm btn-outline-danger me-1" onclick="exportPdfHoaDon(${hd.id})" title="Tải file PDF QuestPDF">
-            <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i>Xuất PDF
-          </button>
-          <button class="btn btn-sm btn-outline-secondary" onclick="deleteHoaDon(${hd.id})">
-            <i class="bi bi-trash"></i>
-          </button>
+          ${actionBtns}
         </td>
       </tr>
     `;
@@ -564,12 +633,20 @@ function renderTableKhuyenMai() {
     return;
   }
 
+  const isAdmin = API.getUserRole() === "ADMIN";
+
   tbody.innerHTML = g_listKhuyenMai.map(km => {
     let scopeBadge = `<span class="badge bg-primary">Toàn hệ thống</span>`;
     if (km.cuahangid) {
       const ch = g_listCuaHang.find(c => c.id === km.cuahangid);
       scopeBadge = `<span class="badge bg-info text-dark">${ch ? ch.tencuahang : 'Cửa hàng #' + km.cuahangid}</span>`;
     }
+
+    const actionBtn = isAdmin
+      ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteKhuyenMai(${km.id})" title="Xóa khuyến mãi">
+           <i class="bi bi-trash"></i>
+         </button>`
+      : `<span class="badge bg-light text-info border">Đang áp dụng</span>`;
 
     return `
       <tr>
@@ -580,9 +657,7 @@ function renderTableKhuyenMai() {
         <td>${formatDate(km.ngaybatdau)}</td>
         <td>${formatDate(km.ngayketthuc)}</td>
         <td class="text-end pe-3">
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteKhuyenMai(${km.id})">
-            <i class="bi bi-trash"></i>
-          </button>
+          ${actionBtn}
         </td>
       </tr>
     `;
@@ -649,20 +724,41 @@ async function loadThongBao() {
   try {
     const data = await API.request('/api/ThongBao/get-all');
     g_listThongBao = Array.isArray(data) ? data : [];
+    
+    // Cập nhật số lượng thông báo trên header và thẻ thống kê
+    const unread = g_listThongBao.filter(t => !t.dadoc).length;
+    const unreadBadge = document.getElementById("unreadBadge");
+    if (unreadBadge) {
+      unreadBadge.innerText = unread;
+      if (unread > 0) unreadBadge.classList.remove("d-none");
+      else unreadBadge.classList.add("d-none");
+    }
+    const statTb = document.getElementById("statThongBao");
+    if (statTb) statTb.innerText = g_listThongBao.length;
+
     renderTableThongBao();
   } catch (err) {
-    document.getElementById("tableThongBaoBody").innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4">Lỗi: ${err.message}</td></tr>`;
+    document.getElementById("tableThongBaoBody").innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Lỗi: ${err.message}</td></tr>`;
   }
 }
 
 function renderTableThongBao() {
   const tbody = document.getElementById("tableThongBaoBody");
+  const summaryEl = document.getElementById("thongBaoSummaryText");
+
   if (g_listThongBao.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">Không có cảnh báo ngầm nào. Hệ thống hoạt động bình thường!</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Không có cảnh báo ngầm nào. Hệ thống hoạt động bình thường!</td></tr>`;
+    if (summaryEl) summaryEl.innerText = "Hệ thống hoạt động bình thường, không có cảnh báo tồn đọng.";
     return;
   }
 
-  tbody.innerHTML = g_listThongBao.map(tb => {
+  // Giới hạn hiển thị 50 cảnh báo mới nhất để đảm bảo giao diện phản hồi mượt mà
+  const displayList = g_listThongBao.slice(0, 50);
+  if (summaryEl) {
+    summaryEl.innerHTML = `Hiển thị <b>${displayList.length}</b> / <b>${g_listThongBao.length}</b> cảnh báo mới nhất quét từ Background Service.`;
+  }
+
+  tbody.innerHTML = displayList.map(tb => {
     let typeBadge = `<span class="badge bg-secondary">${tb.loaithongbao}</span>`;
     if (tb.loaithongbao && tb.loaithongbao.includes("CHAM_BAO_CAO")) {
       typeBadge = `<span class="badge bg-danger"><i class="bi bi-clock-history me-1"></i>Chậm Báo Cáo</span>`;
@@ -677,7 +773,115 @@ function renderTableThongBao() {
         <td>${typeBadge}</td>
         <td><strong>${tb.noidung}</strong></td>
         <td>${tb.dadoc ? '<span class="badge bg-light text-muted border">Đã xem</span>' : '<span class="badge bg-primary">Mới</span>'}</td>
+        <td class="text-end pe-3">
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteThongBao(${tb.id})" title="Xóa cảnh báo này">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
       </tr>
     `;
   }).join('');
 }
+
+async function deleteThongBao(id) {
+  try {
+    await API.request(`/api/ThongBao/delete/${id}`, { method: 'DELETE' });
+    loadThongBao();
+  } catch (err) {
+    Swal.fire({ icon: 'error', title: 'Lỗi', text: err.message });
+  }
+}
+
+async function cleanupDuplicatesThongBao() {
+  Swal.fire({
+    title: 'Đang dọn dẹp thông báo trùng...',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  try {
+    const res = await API.request('/api/ThongBao/cleanup-duplicates', { method: 'DELETE' });
+    Swal.close();
+    Swal.fire({
+      icon: 'success',
+      title: 'Dọn dẹp thành công!',
+      text: res.message || `Đã loại bỏ ${res.deletedCount || 0} thông báo trùng lặp.`,
+      timer: 2000,
+      showConfirmButton: false
+    });
+    loadThongBao();
+  } catch (err) {
+    Swal.fire({ icon: 'error', title: 'Lỗi dọn dẹp', text: err.message });
+  }
+}
+
+async function deleteAllThongBao() {
+  const res = await Swal.fire({
+    title: 'Xóa toàn bộ cảnh báo?',
+    text: 'Tất cả các dòng cảnh báo trong cơ sở dữ liệu sẽ bị xóa hoàn toàn.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    confirmButtonText: 'Đồng ý xóa hết',
+    cancelButtonText: 'Hủy'
+  });
+
+  if (res.isConfirmed) {
+    try {
+      await API.request('/api/ThongBao/delete-all', { method: 'DELETE' });
+      Swal.fire({
+        icon: 'success',
+        title: 'Đã xóa tất cả thông báo',
+        timer: 1500,
+        showConfirmButton: false
+      });
+      loadThongBao();
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Lỗi', text: err.message });
+    }
+  }
+}
+
+// ================= 7. THANH TOÁN HÓA ĐƠN =================
+async function payHoaDon(hoadonId, soTien) {
+  const { value: maGD } = await Swal.fire({
+    title: `Xác nhận thanh toán hóa đơn #${hoadonId}`,
+    html: `Số tiền thanh toán: <strong class="text-danger fs-5">${formatMoney(soTien)}</strong><br><span class="text-muted small">Phương thức: <b>Chuyển khoản ngân hàng</b></span>`,
+    input: 'text',
+    inputLabel: 'Nhập mã giao dịch ngân hàng / biên nhận:',
+    inputPlaceholder: 'VD: VCB-202611-99882',
+    showCancelButton: true,
+    confirmButtonText: '<i class="bi bi-check-circle me-1"></i> Xác nhận thanh toán',
+    cancelButtonText: 'Hủy'
+  });
+
+  if (maGD !== undefined) {
+    try {
+      await API.request('/api/ThanhToan/create', {
+        method: 'POST',
+        body: JSON.stringify({
+          hoadonid: hoadonId,
+          sotien: soTien,
+          phuongthuc: 'chuyenkhoan',
+          magiaodich: maGD.trim() || `CK-${Date.now().toString().slice(-6)}`
+        })
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Thanh toán thành công!',
+        text: `Đã nộp phí nhượng quyền cho hóa đơn #${hoadonId}.`,
+        timer: 1500,
+        showConfirmButton: false
+      });
+      loadHoaDon();
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Thanh toán thất bại',
+        text: err.message
+      });
+    }
+  }
+}
+

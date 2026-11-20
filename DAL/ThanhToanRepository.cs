@@ -39,7 +39,8 @@ namespace DAL
         public bool Create(ThanhToanModel model)
         {
             string sql = @"INSERT INTO thanhtoan (hoadonid, sotien, phuongthuc, magiaodich, ngaythanhtoan)
-                           VALUES (@hoadonid, @sotien, @phuongthuc, @magiaodich, GETDATE())";
+                           VALUES (@hoadonid, @sotien, @phuongthuc, @magiaodich, GETDATE());
+                           UPDATE hoadon SET trangthai = 'dathanhtoan' WHERE id = @hoadonid;";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@hoadonid", model.hoadonid),

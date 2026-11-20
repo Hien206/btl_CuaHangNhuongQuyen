@@ -39,6 +39,9 @@ namespace btl_CuaHangNhuongQuyen.Services
                         var today = DateTime.Now.Date;
                         var yesterday = today.AddDays(-1);
 
+                        // Danh sách thông báo hiện tại để chống lặp (Deduplication)
+                        var listExistingThongBao = thongBaoBLL.GetAll() ?? new System.Collections.Generic.List<ThongBaoModel>();
+
                         // 1. Quét Hợp đồng sắp hết hạn (còn dưới 30 ngày)
                         var listHopDong = hopDongBLL.GetAll();
                         if (listHopDong != null)
@@ -53,14 +56,26 @@ namespace btl_CuaHangNhuongQuyen.Services
                                         var ch = cuaHangBLL.GetById(hd.cuahangid);
                                         int targetUserId = (ch != null && ch.chu_cua_hang_id > 0) ? ch.chu_cua_hang_id : 1;
 
-                                        thongBaoBLL.Create(new ThongBaoModel
+                                        // Kiểm tra xem trong ngày hôm nay đã gửi cảnh báo cho hợp đồng này chưa
+                                        bool daBaoHopDong = listExistingThongBao.Any(tb =>
+                                            tb.loaithongbao == "SANG_HET_HAN_HOP_DONG" &&
+                                            tb.nguoidungid == targetUserId &&
+                                            tb.noidung.Contains($"#{hd.sohopdong}") &&
+                                            (tb.ngaytao.Date == today || (DateTime.Now - tb.ngaytao).TotalHours < 24));
+
+                                        if (!daBaoHopDong)
                                         {
-                                            nguoidungid = targetUserId,
-                                            loaithongbao = "SANG_HET_HAN_HOP_DONG",
-                                            noidung = $"[CẢNH BÁO HỢP ĐỒNG] Hợp đồng #{hd.sohopdong} của cửa hàng {(ch != null ? ch.tencuahang : "ID " + hd.cuahangid)} sắp hết hạn vào ngày {hd.ngayketthuc:dd/MM/yyyy} (Còn {Math.Ceiling(remainingDays)} ngày).",
-                                            dadoc = false,
-                                            ngaytao = DateTime.Now
-                                        });
+                                            var newTb = new ThongBaoModel
+                                            {
+                                                nguoidungid = targetUserId,
+                                                loaithongbao = "SANG_HET_HAN_HOP_DONG",
+                                                noidung = $"[CẢNH BÁO HỢP ĐỒNG] Hợp đồng #{hd.sohopdong} của cửa hàng {(ch != null ? ch.tencuahang : "ID " + hd.cuahangid)} sắp hết hạn vào ngày {hd.ngayketthuc:dd/MM/yyyy} (Còn {Math.Ceiling(remainingDays)} ngày).",
+                                                dadoc = false,
+                                                ngaytao = DateTime.Now
+                                            };
+                                            thongBaoBLL.Create(newTb);
+                                            listExistingThongBao.Add(newTb);
+                                        }
                                     }
                                 }
                             }
@@ -80,14 +95,27 @@ namespace btl_CuaHangNhuongQuyen.Services
                                     if (!daNopBaoCao)
                                     {
                                         int targetUserId = ch.chu_cua_hang_id > 0 ? ch.chu_cua_hang_id : 1;
-                                        thongBaoBLL.Create(new ThongBaoModel
+
+                                        // Kiểm tra xem trong ngày hôm nay đã cảnh báo cửa hàng này chưa
+                                        bool daBaoDoanhThu = listExistingThongBao.Any(tb =>
+                                            tb.loaithongbao == "CHAM_BAO_CAO" &&
+                                            tb.nguoidungid == targetUserId &&
+                                            (tb.noidung.Contains(ch.macuahang) || (ch.tencuahang != null && tb.noidung.Contains(ch.tencuahang))) &&
+                                            (tb.ngaytao.Date == today || (DateTime.Now - tb.ngaytao).TotalHours < 24));
+
+                                        if (!daBaoDoanhThu)
                                         {
-                                            nguoidungid = targetUserId,
-                                            loaithongbao = "CHAM_BAO_CAO",
-                                            noidung = $"[CẢNH BÁO DOANH THU] Cửa hàng {ch.tencuahang} (Mã: {ch.macuahang}) chưa nộp báo cáo doanh thu ngày {yesterday:dd/MM/yyyy}.",
-                                            dadoc = false,
-                                            ngaytao = DateTime.Now
-                                        });
+                                            var newTb = new ThongBaoModel
+                                            {
+                                                nguoidungid = targetUserId,
+                                                loaithongbao = "CHAM_BAO_CAO",
+                                                noidung = $"[CẢNH BÁO DOANH THU] Cửa hàng {ch.tencuahang} (Mã: {ch.macuahang}) chưa nộp báo cáo doanh thu ngày {yesterday:dd/MM/yyyy}.",
+                                                dadoc = false,
+                                                ngaytao = DateTime.Now
+                                            };
+                                            thongBaoBLL.Create(newTb);
+                                            listExistingThongBao.Add(newTb);
+                                        }
                                     }
                                 }
                             }

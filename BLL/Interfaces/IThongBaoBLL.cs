@@ -8,5 +8,8 @@ namespace BLL.Interfaces
         List<ThongBaoModel> GetAll();
         ThongBaoModel GetById(int id);
         bool Create(ThongBaoModel model);
+        bool Delete(int id);
+        bool DeleteAll();
+        int CleanupDuplicates();
     }
 }

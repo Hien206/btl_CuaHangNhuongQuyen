@@ -1,10 +1,11 @@
 // Configuration for Franchise Management API
 const CONFIG = {
-  // Default API Port for Admin (.NET 8):
-  // https://localhost:7134 (Mặc định khi chạy profile HTTPS trong Visual Studio)
-  // http://localhost:5160 (khi chạy profile HTTP)
-  // https://localhost:44390 (khi chạy IIS Express)
-  DEFAULT_API_URL: localStorage.getItem("API_BASE_URL") || "https://localhost:7134",
+  // Cổng mặc định trỏ vào API Gateway (Ocelot - .NET 8)
+  // https://localhost:7221 (Gateway HTTPS)
+  // http://localhost:5045 (Gateway HTTP)
+  // https://localhost:7134 (Trực tiếp Admin API)
+  // https://localhost:7005 (Trực tiếp User API)
+  DEFAULT_API_URL: localStorage.getItem("API_BASE_URL") || "https://localhost:7221",
 
   getApiUrl() {
     return localStorage.getItem("API_BASE_URL") || this.DEFAULT_API_URL;
